@@ -19,6 +19,6 @@ SNAKE_START_POS = (GRID_WIDTH // 2, GRID_HEIGHT // 2)
 FOOD_TYPES = {
     'normal' : {'color': RED, 'score': 1},
     'special': {'color': BLUE, 'score': 5, 'effect': 'speed_boost', 'duration': 100},
-    'golden' : {'color': YELLOW, 'score': 10, 'effect': 'score_multiplayer', 'duration': 200},
+    'golden' : {'color': YELLOW, 'score': 10, 'effect': 'score_multiplier', 'duration': 200},
     'rainbow': {'color': PURPLE, 'score': 7, 'effect': 'rainbow', 'duration': 150}
 }

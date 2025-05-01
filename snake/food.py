@@ -17,11 +17,11 @@ class Food:
         
         # Выбор типа еды
         rand = random.random()
-        if rand < 0.7:
+        if rand < 0.6:
             self.type = 'normal'
             self.score = 1
             self.color = FOOD_TYPES['normal']['color']
-        elif rand < 0.9:
+        elif rand < 0.8:
             self.type = 'special'
             self.score = 5
             self.color = FOOD_TYPES['special']['color']

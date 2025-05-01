@@ -1,4 +1,5 @@
 import pygame
+import time
 import math
 from settings import *
 from bullets import *
@@ -11,14 +12,20 @@ class Snake:
         self.reset()
         self.particles = []
         self.bullets = []  # List to store bullets
+        self.last_shot_time = -1000  # Track the time of the last shot
+        self.shoot_cooldown = 1000  # Cooldown in milliseconds (2 seconds)
 
     def shoot(self):
         # Create a new bullet at the snake's head
-        head_x, head_y = self.get_head_position()
-        bullet_x = head_x * GRID_SIZE + GRID_SIZE // 2
-        bullet_y = head_y * GRID_SIZE + GRID_SIZE // 2
-        bullet = Bullet(bullet_x, bullet_y, self.direction, self.color)
-        self.bullets.append(bullet)
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time >= self.shoot_cooldown:
+            head_x, head_y = self.get_head_position()
+            bullet_x = head_x * GRID_SIZE + GRID_SIZE // 2
+            bullet_y = head_y * GRID_SIZE + GRID_SIZE // 2
+            bullet = Bullet(bullet_x, bullet_y, self.direction, self.color)
+            self.bullets.append(bullet)
+            self.last_shot_time = current_time
+        
         
     def reset(self):
         self.positions = [SNAKE_START_POS]
@@ -42,7 +49,8 @@ class Snake:
         self.effect_timers = {
             'rainbow': 0,
             'speed_boost': 0,
-            'invincible': 0
+            'invincible': 0,
+            'score_multiplier': 0
         }
     
     def get_head_position(self):
@@ -95,6 +103,7 @@ class Snake:
 
         for bullet in self.bullets:
             bullet.draw(surface)
+            
         # Отрисовка змейки
         for i, (x, y) in enumerate(self.positions):
             color = self.color
