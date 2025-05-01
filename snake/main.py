@@ -1,4 +1,5 @@
 import pygame
+import cv2
 import sys
 import time
 import json
@@ -216,14 +217,64 @@ def get_player_name():
             # Show an error message if the name is too long
             tk.messagebox.showerror("Invalid Name", "Name must be 10 characters or fewer.")
 
+
+def play_intro_video(video_path, screen):
+    """Play an intro video using pygame with mirroring."""
+    cap = cv2.VideoCapture(video_path)
+
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        return
+
+    clock = pygame.time.Clock()
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Mirror the frame (1 for horizontal flip, 0 for vertical flip, -1 for both)
+        frame = cv2.flip(frame, 1)  # Flip horizontally
+
+        # Convert the frame from BGR (OpenCV format) to RGB (pygame format)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Convert the frame to a pygame surface
+        frame_surface = pygame.surfarray.make_surface(frame)
+        frame_surface = pygame.transform.rotate(frame_surface, -90)
+        frame_surface = pygame.transform.scale(frame_surface, (WIDTH, HEIGHT))  # Scale to fit the screen
+
+        # Display the frame on the pygame screen
+        screen.blit(frame_surface, (0, 0))
+        pygame.display.flip()
+
+        # Exit video playback on pressing 'q' or any key
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                cap.release()
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                cap.release()
+                return  # Exit the video and return to the main program
+
+        clock.tick(30)  # Limit the frame rate to 30 FPS
+
+    # Release the video capture
+    cap.release()
+
 def main():
-    global player_name
-    player_name = menu()
-    # Инициализация
+    videopath = f"assents/intro/Snake_Introduction.mp4"
     pygame.init()
+    global player_name
+    # Инициализация
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Супер-пупер змейка - ВАУ!")
     clock = pygame.time.Clock()
+    # Flip the video by 90 degrees
+    
+    play_intro_video(videopath, screen)
+    player_name = menu()
 
     # Создание объектов
     snake = Snake()
@@ -232,13 +283,13 @@ def main():
     sound_manager = SoundManager()
     
     # Загрузка звуков
-    sound_manager.load_sound("eat", f"snake/assents/sounds/eat.wav")
-    sound_manager.load_sound("game_over", f"snake/assents/sounds/game_over.wav")
-    sound_manager.load_sound("effect", f"snake/assents/sounds/effect.wav")
+    sound_manager.load_sound("eat", f"assents/sounds/eat.wav")
+    sound_manager.load_sound("game_over", f"assents/sounds/game_over.wav")
+    sound_manager.load_sound("effect", f"assents/sounds/effect.wav")
     
     # Загрузка шрифта
     try:
-        font = pygame.font.Font(f"snake/assents/fonts/arial.ttf", 30)
+        font = pygame.font.Font(f"assents/fonts/arial.ttf", 30)
     except:
         font = pygame.font.SysFont("Arial", 30)
     
@@ -360,6 +411,7 @@ def main():
             if snake.score > highest_score:
                 save_score("score.json", player_name, snake.score)
                 game_over_text = font.render("NEW HIGH SCORE!", True, GREEN)
+                
             else:
                 game_over_text = font.render("GAME OVER! Нажмите SPACE для новой игры", True, RED)
 
